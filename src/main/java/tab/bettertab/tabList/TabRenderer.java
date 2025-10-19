@@ -3,10 +3,14 @@ package tab.bettertab.tabList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.text.OrderedText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
+import tab.bettertab.FriendsManager;
 import tab.bettertab.config.BetterTabConfig;
 
 import static tab.bettertab.tabList.TabUpdater.*;
@@ -26,11 +30,14 @@ public class TabRenderer {
         int x = startTextX;
         int y = startBoxY + 5;
 
+        // Draw background
         context.fill(startBoxX, startBoxY, startBoxX + totalWidth, startBoxY + totalHeight, BetterTabConfig.CONFIG.instance().backgroundColor.getRGB());
 
+        // Render header and footer
         y = renderHeader(textRenderer, context, y);
         renderFooter(textRenderer, context);
 
+        // Scroll indicators
         if (BetterTabConfig.CONFIG.instance().renderScrollIndicator) {
             long currentTime = System.currentTimeMillis();
             if (currentTime - scrollIndicatorLast > BetterTabConfig.CONFIG.instance().scrollIndicatorSpeed) {
@@ -42,11 +49,21 @@ public class TabRenderer {
             }
         }
 
+        // Render columns with friend highlighting
         for (TabColumn column : renderColumns) {
+            // For each entry in the column
+            for (PlayerListEntry entry : column.entries) {
+                String playerName = entry.getProfile().getName();
+                Text displayName = FriendsManager.isFriend(playerName) 
+                        ? Text.literal(playerName).formatted(Formatting.GREEN) 
+                        : Text.literal(playerName);
+                context.drawText(textRenderer, displayName, column.x, column.y + entry.yOffset, 0xffffffff, true);
+            }
             column.render(context, x, y);
             x += column.totalWidth;
         }
 
+        // Page number for paging scroll
         if (BetterTabConfig.CONFIG.instance().scrollingType.equals(BetterTabConfig.ScrollingType.Page)) {
             context.drawCenteredTextWithShadow(client.textRenderer, String.valueOf(pageNumber), startBoxX + totalWidth / 2, footerStartY - 11, columnNumberColor);
         }
