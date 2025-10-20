@@ -1,4 +1,4 @@
-# BetterTab – Friends Edition by Fractal420
+# BetterTab – Friends & Enemies Edition by Fractal420
 
 A fork of [BetterTab by FySjutton](https://github.com/FySjutton/BetterTab), updated for **Minecraft 1.21.1** and extended with a **Friends highlighting feature**.
 
